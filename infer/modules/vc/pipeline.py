@@ -153,10 +153,10 @@ class Pipeline(object):
                 )
             f0 = self.model_rmvpe.infer_from_audio(x, thred=0.03)
 
-        if "privateuseone" in str(self.device):  # clean ortruntime memory
-            del self.model_rmvpe.model
-            del self.model_rmvpe
-            logger.info("Cleaning ortruntime memory")
+            if "privateuseone" in str(self.device):  # clean ortruntime memory
+                del self.model_rmvpe.model
+                del self.model_rmvpe
+                logger.info("Cleaning ortruntime memory")
 
         f0 *= pow(2, f0_up_key / 12)
         # with open("test.txt","w")as f:f.write("\n".join([str(i)for i in f0.tolist()]))
@@ -321,14 +321,14 @@ class Pipeline(object):
         if audio_pad.shape[0] > self.t_max:
             audio_sum = np.zeros_like(audio)
             for i in range(self.window):
-                audio_sum += audio_pad[i : i - self.window]
+                audio_sum += np.abs(audio_pad[i : i - self.window])
             for t in range(self.t_center, audio.shape[0], self.t_center):
                 opt_ts.append(
                     t
                     - self.t_query
                     + np.where(
-                        np.abs(audio_sum[t - self.t_query : t + self.t_query])
-                        == np.abs(audio_sum[t - self.t_query : t + self.t_query]).min()
+                        audio_sum[t - self.t_query : t + self.t_query]
+                        == audio_sum[t - self.t_query : t + self.t_query].min()
                     )[0][0]
                 )
         s = 0
@@ -362,7 +362,7 @@ class Pipeline(object):
             )
             pitch = pitch[:p_len]
             pitchf = pitchf[:p_len]
-            if self.device == "mps" or "xpu" in self.device:
+            if "mps" not in str(self.device) or "xpu" not in str(self.device):
                 pitchf = pitchf.astype(np.float32)
             pitch = torch.tensor(pitch, device=self.device).unsqueeze(0).long()
             pitchf = torch.tensor(pitchf, device=self.device).unsqueeze(0).float()

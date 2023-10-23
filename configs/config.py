@@ -5,12 +5,15 @@ import json
 from multiprocessing import cpu_count
 
 import torch
+
 try:
-    import intel_extension_for_pytorch as ipex # pylint: disable=import-error, unused-import
+    import intel_extension_for_pytorch as ipex  # pylint: disable=import-error, unused-import
+
     if torch.xpu.is_available():
         from infer.modules.ipex import ipex_init
+
         ipex_init()
-except Exception:
+except Exception:  # pylint: disable=broad-exception-caught
     pass
 import logging
 
@@ -41,6 +44,7 @@ class Config:
     def __init__(self):
         self.device = "cuda:0"
         self.is_half = True
+        self.use_jit = False
         self.n_cpu = 0
         self.gpu_name = None
         self.json_config = self.load_config_json()
@@ -119,6 +123,15 @@ class Config:
     def use_fp32_config(self):
         for config_file in version_config_list:
             self.json_config[config_file]["train"]["fp16_run"] = False
+            with open(f"configs/{config_file}", "r") as f:
+                strr = f.read().replace("true", "false")
+            with open(f"configs/{config_file}", "w") as f:
+                f.write(strr)
+        with open("infer/modules/train/preprocess.py", "r") as f:
+            strr = f.read().replace("3.7", "3.0")
+        with open("infer/modules/train/preprocess.py", "w") as f:
+            f.write(strr)
+        print("overwrite preprocess and configs.json")
 
     def device_config(self) -> tuple:
         if torch.cuda.is_available():
@@ -234,4 +247,5 @@ class Config:
                     )
                 except:
                     pass
+        print("is_half:%s, device:%s" % (self.is_half, self.device))
         return x_pad, x_query, x_center, x_max
