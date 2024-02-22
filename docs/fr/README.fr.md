@@ -1,6 +1,3 @@
-Bien sûr, je vais traduire le texte pour vous, en laissant les liens et le code tels quels :
-
-```html
 <div align="center">
 
 <h1>Retrieval-based-Voice-Conversion-WebUI</h1>
@@ -211,6 +208,3 @@ github.com/Dream-High/RMVPE)
 <a href="https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/graphs/contributors" target="_blank">
   <img src="https://contrib.rocks/image?repo=RVC-Project/Retrieval-based-Voice-Conversion-WebUI" />
 </a>
-
-```
-J'espère que cette traduction vous sera utile !
